@@ -1,3 +1,9 @@
+#### BattleSnake Server URL
+* https://github.com/sendwithus/battlesnake-server/
+
+#### BattleSnake Documentation
+* https://github.com/sendwithus/battlesnake
+
 # battlesnake-python
 
 A simple [BattleSnake AI](http://battlesnake.io) written in Python. 
