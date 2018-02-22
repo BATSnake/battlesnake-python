@@ -4,6 +4,12 @@
 #### BattleSnake Documentation
 * https://github.com/sendwithus/battlesnake
 
+#### Running the game server with Docker(for mac os)
+* [install Docker](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac)
+* run: 		docker run -it --rm -p 3000:3000 sendwithus/battlesnake-server
+* visit: 	http://localhost:3000/
+
+----
 # battlesnake-python
 
 A simple [BattleSnake AI](http://battlesnake.io) written in Python. 
