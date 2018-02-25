@@ -6,6 +6,7 @@
 
 #### Running the game server with Docker(for mac os)
 * [install Docker](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac)
+* docker pull sendwithus/battlesnake-server
 * run: 		docker run -it --rm -p 3000:3000 sendwithus/battlesnake-server
 * visit: 	http://localhost:3000/
 
