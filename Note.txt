@@ -1,0 +1,4 @@
+In each round, if the snake will automatically increase or decrease it length depends on the whether it had a food or not, then:
+
+1) Create a variable to store the length of the snake. Every time eat a food, then increase one, otherwise, after each round do an update to decrease one. 
+Questions here: Not sure if we could get the initial value of the snake length from the server, or the server will actually tell us the length of our snake.
