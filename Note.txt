@@ -2,3 +2,11 @@ In each round, if the snake will automatically increase or decrease it length de
 
 1) Create a variable to store the length of the snake. Every time eat a food, then increase one, otherwise, after each round do an update to decrease one. 
 Questions here: Not sure if we could get the initial value of the snake length from the server, or the server will actually tell us the length of our snake.
+
+
+2) Instead of figuring our where exactly the snake is, trunct all the snake into pieces. Only consider the route for the snake head, and all the others and snake body will be treated as the enemy. 
+Question here: How to avoid the situation that has no way to run? 
+Suggestion: Keep the length of the sanke between a certain number, eg: 5-7. 
+
+
+3) Create a [][] arrary to track the location of the snake and the position of the enemy and the wall. Now I am thinking it maybe looks like sovling a maze.
