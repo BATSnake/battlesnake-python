@@ -24,7 +24,7 @@ def start():
     board_width = data.get('width')
     board_height = data.get('height')
 
-    head_url = '%s://%s/static/head.png' % (
+    head_url = '%s://%s/static/head2.png' % (
         bottle.request.urlparts.scheme,
         bottle.request.urlparts.netloc
     )
@@ -33,8 +33,7 @@ def start():
 
     return {
         'color': '#00FF00',
-        # 'taunt': '{} ({}x{})'.format(game_id, board_width, board_height),
-        'taunt': 'I\'m drunk',
+        'taunt': '{} ({}x{})'.format(game_id, board_width, board_height),
         'head_url': head_url,
         'name': 'cc',
         "head_type": "tongue",
@@ -54,13 +53,13 @@ def move():
     print direction
     return {
         'move': direction,
-        'taunt': 'yeah!'
+        'taunt': 'I\'m drunk'
     }
 
 @bottle.post('/end')
 def end():
     data = bottle.request.json
-    return {'taunt': 'byebyebyebye'}
+    return {'taunt': 'uh'}
 
 
 # Expose WSGI app (so gunicorn can find it)
