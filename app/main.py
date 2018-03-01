@@ -1,6 +1,11 @@
 import bottle
 import os
 import random
+from random import randint
+
+ENEMY = 1
+WALL = 2
+SAFE = 5
 #---------------------------------------------------------------------------
 game_id = ''
 board_width = 0
@@ -45,17 +50,60 @@ def start():
 @bottle.post('/move')
 def move():
     data = bottle.request.json
+    board_width = data.get('width') 
+    board_height = data.get('height') 
+    print board_width
+    print board_height
+    path = 0
+    
+    board = [[0 for x in xrange(board_height+1)] for y in xrange(board_width+1)]
 
     # TODO: Do things with data
-    
-    directions = ['up', 'down', 'left', 'right']
-    direction = random.choice(directions)
-    print direction
-    return {
-        'move': direction,
-        'taunt': 'I\'m drunk'
-    }
 
+    #setup Safe value
+    for row in range(board_height):
+	for col in range(board_width):
+	    board[row][col] = SAFE
+	
+    # set up Wall value	
+    for row in range(board_height):
+	    board[row][0] = WALL    # Left wall
+	    board[row][board_width-1] = WALL    # Right wall
+    for col in range(board_width):
+	    board[0][col] = WALL    # Top wall
+	    board[board_height-1][col] = WALL   # Bottom wall
+
+    ranlen = len(data['you']['body']['data'])
+    #set the self-sanke body as the enemy
+    for num in range(ranlen):
+	    posx = data['you']['body']['data'][num]['x']      
+	    posy = data['you']['body']['data'][num]['y']
+##	    print posx
+##	    print posy
+	    board[posx][posy] = ENEMY
+	    
+    #get the position of the snake head
+    sx = data['you']['body']['data'][0]['x']      
+    sy = data['you']['body']['data'][0]['y']
+
+    if board[sx+1][sy] == SAFE or board[sx+1][sy] == WALL:
+        print board[sx+1][sy]
+	path = 3
+    elif board[sx-1][sy] == SAFE or board[sx-1][sy] == WALL:
+	path = 2
+    elif board[sx][sy-1] == SAFE or board[sx][sy-1] == WALL:
+	path = 1
+    elif board[sx][sy+1] == SAFE or board[sx][sy+1] == WALL:
+	path = 0
+
+    directions = ['up', 'down', 'left', 'right']
+    print directions[path]
+    return {
+        'move': directions[path],
+        'taunt': 'I\'m drunk'
+    } 
+	    
+    
 @bottle.post('/end')
 def end():
     data = bottle.request.json
