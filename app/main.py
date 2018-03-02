@@ -116,6 +116,7 @@ def set_walls(my_body_list, enemy_body_list):
         segx = each_segment[0]
         segy = each_segment[1]
         board[segx][segy] = 1
+    #this part has as bug, I will fix it and test it later 
     for each_segment in enemy_body_list[:-1]:
         segx = each_segment[0]
         segy = each_segment[1]
