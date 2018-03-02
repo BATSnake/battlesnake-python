@@ -70,22 +70,26 @@ def move():
     #get the location of myself
     my_body_list = []
     body_list = data.get('you')['body']['data']
+    my_len = data.get('you')['length']
+    print "my_len:", my_len
     for each_segment in body_list:
         segment_x = each_segment['x']
         segment_y = each_segment['y']
-        my_body_list.append([segment_x,segment_y]) #my_body_list e.g. [[1,1], [2,1], [2,2]] #first coor is the head!!
-
+        my_body_list.append([segment_x,segment_y]) #my_body_list e.g. [[1,1], [2,1], [2,2], 3] #first coor is the head!!
+    my_body_list.append(my_len)
+    #print "my_body_list:", my_body_list
 
     #get the location of other snakes   (TODO!!!)
     enemy_body_list = []
     enemy_list = data.get('snakes')['data']
     for each_enemy in enemy_list:
         each_enemy_snake = []
+        each_enemy_len = each_enemy['length']
         for each_enemy_segement in each_enemy['body']['data']:
             enemy_body_x = each_enemy_segement['x']
             enemy_body_y = each_enemy_segement['y']
             each_enemy_snake.append([enemy_body_x, enemy_body_y])
-        enemy_body_list.append(each_enemy_snake) #enemy_body_list e.g [ [[2,3],[2,4]], [[5,6],[5,7],[5,8]] ]  two snakes
+        enemy_body_list.append(each_enemy_len) #enemy_body_list e.g [ [[2,3],[2,4],2], [[5,6],[5,7],[5,8],3] ]  two snakes
     
     #set the value of walls to be 1 (including my body and enemy snakes' bodies)
     board = set_walls(my_body_list, enemy_body_list)
@@ -105,10 +109,14 @@ def move():
         'taunt': 'I\'m drunk'
     } 
 
-#the coor for walls are [1]
+#the coor for walls are [1], the body of our snake, the enemy snake
 def set_walls(my_body_list, enemy_body_list):
     global board
-    for each_segment in my_body_list:  #[1,1]
+    for each_segment in my_body_list[:-1]:  #[1,1]
+        segx = each_segment[0]
+        segy = each_segment[1]
+        board[segx][segy] = 1
+    for each_segment in enemy_body_list[:-1]:
         segx = each_segment[0]
         segy = each_segment[1]
         board[segx][segy] = 1
