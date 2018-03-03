@@ -84,8 +84,10 @@ def move():
     for each_enemy in enemy_list:
         each_enemy_snake = []
         each_enemy_len = each_enemy['length']
-        #get rid of self data
-        if each_enemy['id'] != my_id:
+        each_enemy_health = each_enemy['health']
+        print('enemy health', each_enemy_health)
+   
+        if (each_enemy['id'] != my_id) and (each_enemy_health != 0):
             for each_enemy_segement in each_enemy['body']['data']:
                 enemy_body_x = each_enemy_segement['y']
                 enemy_body_y = each_enemy_segement['x']
@@ -254,32 +256,32 @@ def get_distance(x1, y1, x2, y2):
     return distance
 
 
-#-----------------------
-# 0: empty cell
-# 1: danger zone
-# 8: visited cell
-grid = None
-#-----------------------
-def find_path(y, x, pos2):#y, x, [6,10]
-    global visited
-    global board
-    grid = board
+# #-----------------------
+# # 0: empty cell
+# # 1: danger zone
+# # 8: visited cell
+# grid = None
+# #-----------------------
+# def find_path(y, x, pos2):#y, x, [6,10]
+#     global visited
+#     global board
+#     grid = board
 
-    if (y = pos2[0]) and (x = pos2[1]): #reached the destination
-        return True
-    elif grid[y][x] == 1: #danger zone
-        return False
-    elif grid[y][x] == 8: #visited
-        return False
+#     if (y = pos2[0]) and (x = pos2[1]): #reached the destination
+#         return True
+#     elif grid[y][x] == 1: #danger zone
+#         return False
+#     elif grid[y][x] == 8: #visited
+#         return False
 
-    grid[y][x] = 8 #mark as visited
+#     grid[y][x] = 8 #mark as visited
 
-    #explore the next step: up, right, down, left
-    if ((y >= 1 and find_path(y-1, x, pos2)) or (x <= len(board[0])-2 and find_path(y, x+1, pos2)) or (y <= len(board)-2 and find_path(y+1, x, pos2)) or (x >=1 and find_path(y, x-1, pos2))):
-        return True
+#     #explore the next step: up, right, down, left
+#     if ((y >= 1 and find_path(y-1, x, pos2)) or (x <= len(board[0])-2 and find_path(y, x+1, pos2)) or (y <= len(board)-2 and find_path(y+1, x, pos2)) or (x >=1 and find_path(y, x-1, pos2))):
+#         return True
 
-    #no solution
-    return False
+#     #no solution
+#     return False
 
 #------------------------------------------------------------------------------------------------------------
 @bottle.post('/end')
