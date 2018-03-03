@@ -12,7 +12,7 @@ Suggestion: Keep the length of the sanke between a certain number, eg: 5-7.
 3) Create a [][] arrary to track the location of the snake and the position of the enemy and the wall. Now I am thinking it maybe looks like sovling a maze.
 
 
-
+ 
 ----------------------------------------------------coding----------------------------------------------------------------------
 Example /start Request
 						{

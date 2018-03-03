@@ -2,16 +2,17 @@ import bottle
 import os
 import random
 from random import randint
+from math import *
 
 ENEMY = 1
 WALL = 2
 SAFE = 5
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------
 game_id = ''
 board_width = 0
 board_height = 0
 board = [[0 for x in range(board_width)] for y in range(board_height)] 
-#---------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------
 
 @bottle.route('/')
 def static():
@@ -39,9 +40,8 @@ def start():
     )
 
     # TODO: Do things with data
-
     return {
-        'color': '#00FF00',
+        'color': '#E74C3C',
         'taunt': '{} ({}x{})'.format(game_id, board_width, board_height),
         'head_url': head_url,
         'name': 'cc',
@@ -50,7 +50,7 @@ def start():
     }
                             
 
-
+#------------------------------------------------------------------------------------------------------------
 @bottle.post('/move')
 def move():
     data = bottle.request.json
@@ -71,13 +71,12 @@ def move():
     my_body_list = []
     body_list = data.get('you')['body']['data']
     my_len = data.get('you')['length']
-    print "my_len:", my_len
+    my_id = data.get('you')['id']
     for each_segment in body_list:
         segment_x = each_segment['x']
         segment_y = each_segment['y']
         my_body_list.append([segment_x,segment_y]) #my_body_list e.g. [[1,1], [2,1], [2,2], 3] #first coor is the head!!
     my_body_list.append(my_len)
-    #print "my_body_list:", my_body_list
 
     #get the location of other snakes   (TODO!!!)
     enemy_body_list = []
@@ -85,53 +84,99 @@ def move():
     for each_enemy in enemy_list:
         each_enemy_snake = []
         each_enemy_len = each_enemy['length']
-        for each_enemy_segement in each_enemy['body']['data']:
-            enemy_body_x = each_enemy_segement['x']
-            enemy_body_y = each_enemy_segement['y']
-            each_enemy_snake.append([enemy_body_x, enemy_body_y])
-        enemy_body_list.append(each_enemy_len) #enemy_body_list e.g [ [[2,3],[2,4],2], [[5,6],[5,7],[5,8],3] ]  two snakes
-    
-    #set the value of walls to be 1 (including my body and enemy snakes' bodies)
-    board = set_walls(my_body_list, enemy_body_list)
+        #get rid of self data
+        if each_enemy['id'] != my_id:
+            for each_enemy_segement in each_enemy['body']['data']:
+                enemy_body_x = each_enemy_segement['x']
+                enemy_body_y = each_enemy_segement['y']
+                each_enemy_snake.append([enemy_body_x, enemy_body_y])
+            each_enemy_snake.append(each_enemy_len)  
+            enemy_body_list.append(each_enemy_snake)   #enemy_body_list e.g [ [[2,3],[2,4],2], [[5,6],[5,7],[5,8],3] ]  two snakes
+
+    #set danger zone
+    board = set_walls(my_food_list, my_body_list, enemy_body_list)
 
     #get the position of the snake head
     head = my_body_list[0] #e.g.[1,1]
 
-    #get the optional directions for the head
+    #get the optional directions for the head (avoid walls and danger zone)
     directions = direction_options(head)
     
-    #TODO!!!
+    #find the direction towards the closest food)
     direction = find_best_direction(directions, head, my_food_list)
-
-    
     return {
         'move': direction,
         'taunt': 'I\'m drunk'
     } 
 
-#the coor for walls are [1], the body of our snake, the enemy snake
-def set_walls(my_body_list, enemy_body_list):
+
+#set danger zones in the board
+def set_walls(my_food_list,my_body_list, enemy_body_list):
     global board
-    for each_segment in my_body_list[:-1]:  #[1,1]
+    # 1. set all snakes' position as danger zone
+    for each_segment in my_body_list[0:len(my_body_list)-1]:  #[1,1]
         segx = each_segment[0]
         segy = each_segment[1]
         board[segx][segy] = 1
         
-    #this part is not correct, I will fix it and test it later
-    for each_segment in enemy_body_list[:-1]:
-        segx = each_segment[0]
-        segy = each_segment[1]
-        board[segx][segy] = 1
-    #new version:    
-    #for each_snake in enemy_body_list:
-	#	for each_segment in each_snake[:-1]:
-	#		segx = each_segment[0]
-	#		segy = each_segment[1]
-	#		board[segx][segy] = 1
+    for each_snake in enemy_body_list:
+        for each_segment in each_snake[0:len(each_snake)-1]:
+            segx = each_segment[0]
+            segy = each_segment[1]
+            board[segx][segy] = 1
     
+    # 2. reopen some tail position
+    reopen = get_open_coordinates(my_food_list, my_body_list, enemy_body_list) #e.g.[[2,3], [4,5]]
+    for each_coor in reopen:
+        segx = each_coor[0]
+        segy = each_coor[1]
+        board[segx][segy] = 0
+
+    # 3. set longer snakes' next steps as danger zone
+    for each_enemy in enemy_body_list:
+        enemy_head = []
+        if each_enemy[-1] >= my_body_list[-1]:
+            enemy_head.append(each_enemy[0][0])
+            enemy_head.append(each_enemy[0][1])
+            head_next_location = next_move_location(enemy_head)
+            for next in head_next_location:
+                segx = next[0]
+                segy = next[1]
+            board[segx][segy] = 1   
+
+    # 4. reset the board value of the enemy snake head if the enemy snake length < our snake length
+    # for each_enemy in enemy_body_list:
+    #     enemy_head = []
+    #     if each_enemy[-1] < my_body_list[-1]:
+    #         enemy_head.append(each_enemy[0][0])
+    #         enemy_head.append(each_enemy[0][1])
+    #         head_next_location = next_move_location(enemy_head)
+    #         #might return several possible location, so check each location
+    #         for next in head_next_location:
+    #             segx = next[0]
+    #             segy = next[1]
+    #         board[segx][segy] = 0
+            
     return board
 
-#get the direction options of my snake head 
+#get the coordination of next move
+def next_move_location(current_location):
+    global board
+    next_location = []
+    directions = direction_options(current_location)
+    for next_move in directions:
+        if next_move == 'up':
+            next_location.append([current_location[0],current_location[1]-1])
+        elif next_move == 'down':
+            next_location.append([current_location[0],current_location[1]+1])
+        elif next_move == 'left':
+            next_location.append([current_location[0]-1,current_location[1]])
+        elif next_move == 'right':
+            next_location.append([current_location[0]+1,current_location[1]])
+    return next_location
+    
+
+#get the direction options of my snake head (avoid walls and danger zone)
 def direction_options(head):
     global board
     global board_width
@@ -157,10 +202,11 @@ def direction_options(head):
              directions.append('down')
     return directions
 
-#TODO
+#calculate the direction towards the closest food
 def find_best_direction(directions, head, my_food_list):
     direction = ''
     food_pos = my_food_list[0] #e.g.[3,7]
+
     headx = head[0]
     heady = head[1]
     foodx = food_pos[0]
@@ -169,15 +215,14 @@ def find_best_direction(directions, head, my_food_list):
 
     for legal_direction in directions:
         if legal_direction == 'up':
-            updistance = (headx-foodx)**2 + (heady-1-foody)**2
+            updistance = get_distance(headx, heady-1, foodx, foody)
         elif legal_direction == 'right':
-            rightdistance = (headx+1-foodx)**2 + (heady-foody)**2
+            rightdistance = get_distance(headx+1, heady, foodx, foody)
         elif legal_direction == 'left':
-            leftdistance = (headx-1-foodx)**2 + (heady-foody)**2
+            leftdistance = get_distance(headx-1, heady, foodx, foody)
         elif legal_direction == 'down':
-            downdistance = (headx-foodx)**2 + (heady+1-foody)**2
-
-    print(updistance, rightdistance, downdistance, leftdistance)
+            downdistance = get_distance(headx, heady+1, foodx, foody)
+    
     direction= 'up'
     min_distance = updistance
     if rightdistance<min_distance:
@@ -192,7 +237,34 @@ def find_best_direction(directions, head, my_food_list):
 
     return direction
 
+#When snakes move 1 step, their tail positons will be open again, (unless get a food)
+def get_open_coordinates(my_food_list, my_body_list, enemy_body_list):
+    open_coor =[]
 
+    my_next_locations = next_move_location(my_body_list[0])
+    common = 0
+    for i in my_next_locations:
+        if i in my_food_list: 
+            common += 1
+    if common == 0:
+        open_coor.append(my_body_list[-2])
+
+    for enemy_snake in enemy_body_list:
+        enemy_next_locations = next_move_location(enemy_snake[0])
+        common = 0
+        for i in enemy_next_locations:
+            if i in my_food_list:
+                common += 1
+        if common == 0:
+            open_coor.append(enemy_snake[-2])
+    return open_coor
+
+def get_distance(x1, y1, x2, y2):
+    distance = ((x1-x2)**2)+((y1-y2)**2)
+    return distance
+
+
+#------------------------------------------------------------------------------------------------------------
 @bottle.post('/end')
 def end():
     data = bottle.request.json
@@ -205,6 +277,6 @@ application = bottle.default_app()
 if __name__ == '__main__':
     bottle.run(
         application,
-        host=os.getenv('IP', '0.0.0.0'),
+        host=os.getenv('IP', '192.168.0.21'),
         port=os.getenv('PORT', '8080'),
         debug = True)
