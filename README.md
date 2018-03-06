@@ -1,3 +1,6 @@
+:tada: first time attending battlesnake, entered the semi-final for the beginner bracket 
+
+----
 #### BattleSnake Server URL
 * https://github.com/sendwithus/battlesnake-server/
 
@@ -7,9 +10,10 @@
 #### Running the game server with Docker(for mac os)
 * [install Docker](https://docs.docker.com/docker-for-mac/install/#download-docker-for-mac)
 * docker pull sendwithus/battlesnake-server
-* run: 		docker run -it --rm -p 3000:3000 sendwithus/battlesnake-server
+* docker run -it --rm -p 3000:3000 sendwithus/battlesnake-server
 * visit: 	http://localhost:3000/
 
+----
 ----
 # battlesnake-python
 
