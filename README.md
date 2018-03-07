@@ -1,6 +1,8 @@
 :tada: first time attending battlesnake, entered the semi-final for the beginner bracket 
 
 ----
+#### [Our strategy summary](https://github.com/MCatherine1994/Python-Practice/tree/master/BattleSnake%20Draft)
+----
 #### BattleSnake Server URL
 * https://github.com/sendwithus/battlesnake-server/
 
@@ -13,7 +15,6 @@
 * docker run -it --rm -p 3000:3000 sendwithus/battlesnake-server
 * visit: 	http://localhost:3000/
 
-----
 ----
 # battlesnake-python
 
